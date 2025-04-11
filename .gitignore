@@ -1,0 +1,5 @@
+#chạy lệnh npm install
+node_modules/
+
+# dotenv file (nếu có)
+.env
