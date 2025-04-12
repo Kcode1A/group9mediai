@@ -90,3 +90,8 @@ router.post('/login', userController.loginUser);
 router.post('/admin/doctors', upload.single('avatar'), adminController.handleForm);
 module.exports = router;
 
+// xử lý đặt lịch tiêm chủng
+router.get('/book-vaccine', (req, res) => {
+  res.render('book-vaccine');
+});
+

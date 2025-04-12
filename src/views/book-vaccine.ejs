@@ -1,0 +1,83 @@
+<%- include('../layouts/client-layout', { title: 'Đặt lịch tiêm vắc xin' }) %>
+
+<main class="container mt-4">
+  <h2 class="mb-4">Đặt lịch tiêm vắc xin</h2>
+
+  <form id="vaccineForm">
+    <div class="mb-3">
+      <label for="vaccineId" class="form-label">Chọn loại vắc xin</label>
+      <select id="vaccineId" name="vaccineId" class="form-select">
+        <!-- sẽ load bằng JS -->
+      </select>
+    </div>
+
+    <div id="vaccineInfo" class="mb-3 text-muted small"></div>
+
+    <div class="mb-3">
+      <label for="scheduleDate" class="form-label">Ngày tiêm</label>
+      <input type="date" class="form-control" id="scheduleDate" name="scheduleDate">
+    </div>
+
+    <div class="mb-3">
+      <label for="scheduleTime" class="form-label">Giờ tiêm</label>
+      <input type="time" class="form-control" id="scheduleTime" name="scheduleTime">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đặt lịch</button>
+  </form>
+
+  <div id="result" class="mt-3"></div>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("token");
+      const vaccineSelect = document.getElementById("vaccineId");
+      const result = document.getElementById("result");
+      const vaccineInfo = document.getElementById("vaccineInfo");
+  
+      fetch('/api/vaccines')
+        .then(res => res.json())
+        .then(data => {
+          data.data.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v._id;
+            opt.textContent = `${v.name} - ${v.hospital}`;
+            opt.dataset.info = JSON.stringify(v);
+            vaccineSelect.appendChild(opt);
+          });
+  
+          vaccineSelect.addEventListener("change", () => {
+            const info = JSON.parse(vaccineSelect.selectedOptions[0].dataset.info);
+            vaccineInfo.innerHTML = `Giá: ${info.price} | Mô tả: ${info.description}`;
+          });
+  
+          vaccineSelect.dispatchEvent(new Event("change"));
+        });
+  
+      document.getElementById("vaccineForm").addEventListener("submit", e => {
+        e.preventDefault();
+        if (!token) return alert("Bạn cần đăng nhập");
+  
+        const payload = {
+          vaccineId: vaccineSelect.value,
+          scheduleDate: document.getElementById("scheduleDate").value,
+          scheduleTime: document.getElementById("scheduleTime").value,
+        };
+  
+        fetch('/api/vaccine-bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', token },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          result.textContent = data.success ? "✅ Đặt lịch thành công!" : `❌ ${data.message}`;
+        })
+        .catch(() => {
+          result.textContent = "❌ Có lỗi xảy ra";
+        });
+      });
+    });
+  </script>
+  

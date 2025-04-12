@@ -9,6 +9,10 @@ const expressLayouts = require('express-ejs-layouts');
 const app = express();
 const { authenticate } = require('./src/middlewares/auth.middleware');
 const cookieParser = require('cookie-parser');
+const vaccineRoute = require("./src/routes/vaccineRoute");
+const vaccineBookingRoute = require("./src/routes/vaccineBookingRoute");
+
+
 connectDB();
 
 app.use(express.json());
@@ -23,6 +27,9 @@ app.use(expressLayouts);
 app.use(setLayout); 
 app.use('/', webRoutes);
 app.use('/api', apiRoutes);   
+
+app.use("/api/vaccines", vaccineRoute);
+app.use("/api/vaccine-bookings", vaccineBookingRoute);
 
 // Route test
 app.get('/register', (req, res) => {
